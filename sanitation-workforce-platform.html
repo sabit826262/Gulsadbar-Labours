@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sanitation Workforce Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1B221D; --ink-soft: #4B564D;
+    --paper: #F2F4EF; --surface: #FFFFFF;
+    --line: #D7DDD3; --line-strong: #B9C2B4;
+    --teal: #1F6F5C; --teal-dark: #144B3E; --teal-tint: #E4EFEA;
+    --amber: #B8802A; --amber-tint: #F6EBD9;
+    --brick: #AE3D3D; --brick-tint: #F5E4E2;
+    --half: #4C6FA0; --half-tint: #E4EAF3;
+    --muted-tint: #EDEFE9;
+    --radius: 3px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #E8ECE6; --ink-soft: #AEB8AA; --paper: #171B18; --surface: #1E2420;
+      --line: #333B33; --line-strong: #4A554A; --teal: #4EA88D; --teal-dark: #6CC0A5;
+      --teal-tint: #1D2B26; --amber: #D9A354; --amber-tint: #2C2618; --brick: #D97575;
+      --brick-tint: #2E1E1E; --half: #8CA8D6; --half-tint: #1C2432; --muted-tint: #262C25;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #E8ECE6; --ink-soft: #AEB8AA; --paper: #171B18; --surface: #1E2420;
+    --line: #333B33; --line-strong: #4A554A; --teal: #4EA88D; --teal-dark: #6CC0A5;
+    --teal-tint: #1D2B26; --amber: #D9A354; --amber-tint: #2C2618; --brick: #D97575;
+    --brick-tint: #2E1E1E; --half: #8CA8D6; --half-tint: #1C2432; --muted-tint: #262C25;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--paper); color: var(--ink); font-family: 'IBM Plex Sans', -apple-system, sans-serif; font-size: 14.5px; }
+  h1,h2,h3 { font-family: 'Archivo', sans-serif; margin: 0; letter-spacing: -0.01em; }
+  button { font-family: inherit; }
+  a { color: var(--teal-dark); }
+  ::selection { background: var(--teal-tint); }
+
+  .app { display: flex; min-height: 100%; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar { width: 216px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--line); padding: 22px 0 16px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .brand { padding: 0 20px 20px; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+  .brand .mark { width: 34px; height: 34px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Archivo',sans-serif; font-weight: 800; font-size: 15px; margin-bottom: 10px; }
+  .brand h1 { font-size: 15px; font-weight: 700; line-height: 1.25; }
+  .brand p { margin: 3px 0 0; font-size: 11.5px; color: var(--ink-soft); }
+  nav { padding: 4px 10px; flex: 1; }
+  .nav-group { margin-bottom: 14px; }
+  .nav-group-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--line-strong); padding: 0 10px; margin-bottom: 4px; }
+  nav button.nav-btn { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; border: none; background: transparent; color: var(--ink-soft); padding: 8px 10px; border-radius: var(--radius); font-size: 13.5px; font-weight: 500; cursor: pointer; }
+  nav button.nav-btn:hover { background: var(--muted-tint); color: var(--ink); }
+  nav button.nav-btn.active { background: var(--teal-tint); color: var(--teal-dark); font-weight: 600; }
+  nav button.nav-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
+  nav button.nav-btn.active .dot { background: var(--teal-dark); }
+  .sidebar-foot { padding: 12px 20px 0; border-top: 1px solid var(--line); margin-top: 8px; }
+  .sync-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-soft); }
+  .sync-dot i { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); display: inline-block; }
+  .sync-dot.off i { background: var(--brick); }
+
+  /* ---------- Main ---------- */
+  main { flex: 1; min-width: 0; padding: 28px 36px 60px; max-width: 1160px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .page-head h2 { font-size: 21px; font-weight: 700; }
+  .page-head .sub { color: var(--ink-soft); font-size: 12.5px; margin-top: 4px; }
+  .back-link { border: none; background: none; color: var(--ink-soft); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0 0 10px; display: inline-flex; align-items: center; gap: 5px; }
+  .back-link:hover { color: var(--teal-dark); }
+
+  .btn { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); padding: 8px 14px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { border-color: var(--teal); color: var(--teal-dark); }
+  .btn.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .btn.primary:hover { background: var(--teal-dark); border-color: var(--teal-dark); color: #fff; }
+  .btn.ghost { border-color: transparent; background: transparent; }
+  .btn.small { padding: 5px 10px; font-size: 12px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  input[type=text], input[type=tel], input[type=date], input[type=number], select, textarea {
+    font-family: inherit; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+    border-radius: var(--radius); padding: 8px 10px; font-size: 13.5px; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
+  label { font-size: 12px; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 4px; }
+
+  .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+  .stat { background: var(--surface); padding: 14px 16px; }
+  .stat .n { font-family: 'Archivo',sans-serif; font-size: 26px; font-weight: 800; line-height: 1; }
+  .stat .l { font-size: 11px; color: var(--ink-soft); margin-top: 6px; }
+  .stat.present .n { color: var(--teal); }
+  .stat.absent .n { color: var(--brick); }
+  .stat.leave .n { color: var(--amber); }
+
+  .ledger { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .ledger th { text-align: left; font-size: 11px; font-weight: 600; color: var(--ink-soft); padding: 10px 12px; border-bottom: 1px solid var(--line-strong); background: var(--muted-tint); }
+  .ledger td { padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: middle; }
+  .ledger tr:last-child td { border-bottom: none; }
+  .ledger tr:hover td { background: var(--muted-tint); }
+  .row-idx { font-family: 'IBM Plex Mono', monospace; color: var(--line-strong); font-size: 11.5px; width: 30px; }
+  .wk-name-btn { font-weight: 600; background: none; border: none; padding: 0; color: var(--ink); cursor: pointer; text-align: left; font-size: 13.5px; }
+  .wk-name-btn:hover { color: var(--teal-dark); text-decoration: underline; }
+  .wk-meta { color: var(--ink-soft); font-size: 11.5px; margin-top: 1px; }
+
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+  .status-pill.present { background: var(--teal-tint); color: var(--teal-dark); }
+  .status-pill.absent { background: var(--brick-tint); color: var(--brick); }
+  .status-pill.leave { background: var(--amber-tint); color: var(--amber); }
+  .status-pill.half { background: var(--half-tint); color: var(--half); }
+  .status-pill.unmarked { background: var(--muted-tint); color: var(--ink-soft); }
+  .status-pill.paid { background: var(--teal-tint); color: var(--teal-dark); }
+  .status-pill.unpaid { background: var(--amber-tint); color: var(--amber); }
+
+  .mark-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+  .mark-btn { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft); padding: 5px 10px; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; }
+  .mark-btn[data-s="present"].active { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .mark-btn[data-s="absent"].active { background: var(--brick); border-color: var(--brick); color: #fff; }
+  .mark-btn[data-s="leave"].active { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .mark-btn[data-s="half"].active { background: var(--half); border-color: var(--half); color: #fff; }
+  .mark-btn:hover:not(.active) { border-color: var(--teal); color: var(--teal-dark); }
+
+  .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar .field { display: flex; flex-direction: column; gap: 4px; }
+  .toolbar .field input, .toolbar .field select { min-width: 150px; }
+  .spacer { flex: 1; }
+
+  .empty { text-align: center; padding: 50px 20px; color: var(--ink-soft); }
+  .empty h3 { font-size: 15px; margin-bottom: 6px; color: var(--ink); }
+  .empty p { font-size: 12.5px; margin: 0 0 14px; }
+
+  .modal-back { position: fixed; inset: 0; background: rgba(20,25,20,0.4); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .modal-back.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 6px; width: 100%; max-width: 420px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+  .modal h3 { font-size: 16px; margin-bottom: 16px; }
+  .form-grid { display: flex; flex-direction: column; gap: 12px; }
+  .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 20px; font-size: 12.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 80; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .summary-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--muted-tint); width: 100px; }
+  .summary-bar span { height: 100%; }
+
+  /* Home */
+  .hero { background: var(--teal-dark); color: #fff; border-radius: 6px; padding: 28px 30px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .hero h2 { font-size: 22px; font-weight: 700; color: #fff; }
+  .hero p { color: rgba(255,255,255,0.8); font-size: 13px; margin: 6px 0 0; max-width: 440px; }
+  .hero .btn { background: #fff; border-color: #fff; color: var(--teal-dark); }
+  .quick-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 26px; }
+  .quick-card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; cursor: pointer; text-align: left; }
+  .quick-card:hover { border-color: var(--teal); }
+  .quick-card .n { font-family:'Archivo',sans-serif; font-size: 22px; font-weight: 800; }
+  .quick-card .l { font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+  .section-title { font-size: 13px; font-weight: 700; margin: 0 0 12px; }
+  .ann-card { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--teal); border-radius: 4px; padding: 14px 16px; margin-bottom: 10px; }
+  .ann-card .ann-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .ann-card h4 { font-size: 13.5px; font-weight: 700; margin: 0; }
+  .ann-card .date { font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+  .ann-card p { font-size: 13px; color: var(--ink-soft); margin: 6px 0 0; white-space: pre-wrap; }
+  .ann-card .del { font-size: 11px; color: var(--brick); background: none; border: none; cursor: pointer; margin-top: 8px; padding: 0; font-weight: 600; }
+
+  /* Worker profile */
+  .profile-head { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--teal-tint); color: var(--teal-dark); display: flex; align-items: center; justify-content: center; font-family:'Archivo',sans-serif; font-weight: 800; font-size: 20px; flex-shrink: 0; }
+  .profile-head h2 { font-size: 20px; }
+  .profile-head .meta { color: var(--ink-soft); font-size: 12.5px; margin-top: 3px; }
+  .profile-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; align-items: start; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+  .cal-cell { aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--muted-tint); color: var(--ink-soft); }
+  .cal-cell.present { background: var(--teal-tint); color: var(--teal-dark); }
+  .cal-cell.absent { background: var(--brick-tint); color: var(--brick); }
+  .cal-cell.leave { background: var(--amber-tint); color: var(--amber); }
+  .cal-cell.half { background: var(--half-tint); color: var(--half); }
+  .cal-cell.blank { background: transparent; }
+  .info-card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+  .info-card .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
+  .info-card .row:last-child { border-bottom: none; }
+  .info-card .row span:first-child { color: var(--ink-soft); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0 18px; font-size: 11.5px; color: var(--ink-soft); }
+  .legend .sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; max-width: 780px; }
+  .zone-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--muted-tint); border-radius: 20px; padding: 4px 6px 4px 12px; font-size: 12px; margin: 3px 4px 3px 0; }
+  .zone-tag button { border: none; background: none; color: var(--ink-soft); cursor: pointer; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .zone-tag button:hover { background: var(--brick-tint); color: var(--brick); }
+
+  @media (max-width: 900px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .quick-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 820px) {
+    .app { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 12px 14px; overflow-x: auto; }
+    .brand { border: none; padding: 0 14px 0 0; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .brand .mark { margin: 0; width: 28px; height: 28px; font-size: 12px; }
+    .brand p { display: none; }
+    nav { display: flex; flex-direction: row; padding: 0; flex: none; gap: 4px; }
+    .nav-group { margin-bottom: 0; display: flex; gap: 2px; }
+    .nav-group-label { display: none; }
+    .sidebar-foot { display: none; }
+    main { padding: 20px 16px 50px; }
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .form-row2 { grid-template-columns: 1fr; }
+    .ledger { display: block; overflow-x: auto; }
+    .quick-grid { grid-template-columns: 1fr 1fr; }
+    .hero { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ---------- Auth ---------- */
+  .auth-wrap { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .auth-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 30px 28px; box-shadow: 0 16px 44px rgba(20,30,20,0.10); }
+  .auth-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .auth-brand .mark { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Archivo',sans-serif; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+  .auth-brand h1 { font-size: 16px; font-weight: 700; }
+  .auth-brand p { margin: 2px 0 0; font-size: 11.5px; color: var(--ink-soft); }
+  .auth-tabs { display: flex; gap: 3px; background: var(--muted-tint); border-radius: 7px; padding: 3px; margin-bottom: 20px; }
+  .auth-tab { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 5px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
+  .auth-tab.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
+  .auth-error { background: var(--brick-tint); color: var(--brick); padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-bottom: 12px; display: none; }
+  .auth-note { font-size: 11.5px; color: var(--ink-soft); margin-top: 16px; text-align: center; }
+  .auth-note a { color: var(--teal-dark); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .auth-note a:hover { text-decoration: underline; }
+  .role-choice { display: flex; gap: 8px; }
+  .role-opt { flex: 1; border: 1px solid var(--line-strong); border-radius: 6px; padding: 10px 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--ink-soft); background: var(--surface); }
+  .role-opt .rd { font-size: 10px; font-weight: 500; color: var(--ink-soft); margin-top: 2px; }
+  .role-opt.active { border-color: var(--teal); background: var(--teal-tint); color: var(--teal-dark); }
+  .role-opt.active .rd { color: var(--teal-dark); opacity: 0.8; }
+  .auth-submit { width: 100%; justify-content: center; margin-top: 4px; }
+
+  .user-chip { display: flex; align-items: center; gap: 9px; padding: 0 20px 12px; }
+  .user-chip .av { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-tint); color: var(--teal-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0; font-family: 'Archivo',sans-serif; }
+  .user-chip .info { flex: 1; min-width: 0; }
+  .user-chip .name { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-chip .role { font-size: 10.5px; color: var(--ink-soft); font-weight: 600; }
+  .logout-btn { border: none; background: none; color: var(--ink-soft); font-size: 10.5px; font-weight: 700; cursor: pointer; padding: 3px 6px; }
+  .logout-btn:hover { color: var(--brick); }
+  .staff-banner { background: var(--amber-tint); color: var(--amber); border-radius: 4px; padding: 9px 14px; font-size: 12px; font-weight: 600; margin-bottom: 18px; }
+  @media (max-width: 820px) { .user-chip { display: none; } }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-wrap" id="authRoot">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="mark">SR</div>
+      <div><h1>Sanitation Registry</h1><p>Workforce &amp; attendance platform</p></div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="authTabLogin" type="button">Log in</button>
+      <button class="auth-tab" id="authTabSignup" type="button">Create account</button>
+    </div>
+
+    <form class="form-grid" id="loginForm">
+      <div class="auth-error" id="liError"></div>
+      <div><label for="liEmail">Email</label><input type="text" id="liEmail" autocomplete="username" placeholder="you@example.com"></div>
+      <div><label for="liPassword">Password</label><input type="password" id="liPassword" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="btn primary auth-submit" type="submit">Log in</button>
+    </form>
+
+    <form class="form-grid" id="signupForm" style="display:none;">
+      <div class="auth-error" id="suError"></div>
+      <div><label for="suName">Full name</label><input type="text" id="suName" autocomplete="name" placeholder="e.g. Asha Rao"></div>
+      <div><label for="suEmail">Email</label><input type="text" id="suEmail" autocomplete="username" placeholder="you@example.com"></div>
+      <div class="form-row2">
+        <div><label for="suPassword">Password</label><input type="password" id="suPassword" autocomplete="new-password" placeholder="At least 6 characters"></div>
+        <div><label for="suConfirm">Confirm</label><input type="password" id="suConfirm" autocomplete="new-password" placeholder="Repeat password"></div>
+      </div>
+      <div>
+        <label>Account type</label>
+        <div class="role-choice">
+          <div class="role-opt" data-role="supervisor"><div>Supervisor</div><div class="rd">Full admin access</div></div>
+          <div class="role-opt active" data-role="staff"><div>Staff</div><div class="rd">Mark &amp; view attendance</div></div>
+        </div>
+      </div>
+      <button class="btn primary auth-submit" type="submit">Create account</button>
+    </form>
+
+    <div class="auth-note" id="authNote">Don't have an account? <a id="toSignupLink">Create one</a></div>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">SR</div>
+      <h1 id="brandTitle">Sanitation Registry</h1>
+      <p>Workforce &amp; attendance platform</p>
+    </div>
+    <div class="user-chip">
+      <div class="av" id="userChipAvatar">—</div>
+      <div class="info">
+        <div class="name" id="userChipName">—</div>
+        <div class="role" id="userChipRole">—</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </div>
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-label">OVERVIEW</div>
+        <button class="nav-btn active" data-view="home"><span class="dot"></span>Home</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">ATTENDANCE</div>
+        <button class="nav-btn" data-view="mark"><span class="dot"></span>Mark Attendance</button>
+        <button class="nav-btn" data-view="history"><span class="dot"></span>History</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">WORKFORCE</div>
+        <button class="nav-btn supervisor-only" data-view="workers"><span class="dot"></span>Workers</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">PAYROLL</div>
+        <button class="nav-btn supervisor-only" data-view="reports"><span class="dot"></span>Reports</button>
+        <button class="nav-btn supervisor-only" data-view="payroll"><span class="dot"></span>Payroll</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">ADMIN</div>
+        <button class="nav-btn supervisor-only" data-view="settings"><span class="dot"></span>Settings</button>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="sync-dot" id="syncDot"><i></i><span id="syncLabel">Saved on this device</span></span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="staff-banner" id="staffBanner" style="display:none">You're signed in as staff. Worker records, payroll and settings are visible to supervisors only.</div>
+
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="hero">
+        <div>
+          <h2 id="heroTitle">Good day, team.</h2>
+          <p id="heroSub">Here's how today looks across the sanitation workforce.</p>
+        </div>
+        <button class="btn" data-goto="mark">Mark today's attendance</button>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-card" data-goto="workers"><div class="n" id="qcWorkers">0</div><div class="l">Active workers</div></button>
+        <button class="quick-card" data-goto="mark"><div class="n" id="qcPresent">0</div><div class="l">Present today</div></button>
+        <button class="quick-card" data-goto="mark"><div class="n" id="qcUnmarked">0</div><div class="l">Not yet marked</div></button>
+        <button class="quick-card" data-goto="payroll"><div class="n" id="qcWages">—</div><div class="l">Wages due this month</div></button>
+      </div>
+      <h3 class="section-title">Announcements</h3>
+      <div id="homeAnnList"></div>
+      <div class="empty" id="homeAnnEmpty" style="display:none;padding:30px 20px;">
+        <h3>No announcements yet</h3>
+        <p>Post a notice from here for everyone who opens this registry to see.</p>
+      </div>
+      <div class="form-grid" style="max-width:520px;margin-top:14px;">
+        <textarea id="annBody" rows="2" placeholder="Post an announcement — a schedule change, a safety notice, a reminder…" style="resize:vertical;"></textarea>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn primary small" id="annPostBtn">Post announcement</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARK ATTENDANCE -->
+    <section class="view" id="view-mark">
+      <div class="page-head">
+        <div><h2>Mark Attendance</h2><div class="sub">Tap a status for each worker. Changes save instantly and sync for every device.</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="field"><label for="markDate">Date</label><input type="date" id="markDate"></div>
+        <div class="field"><label for="markZone">Zone</label><select id="markZone"><option value="">All zones</option></select></div>
+        <div class="spacer"></div>
+        <button class="btn small" id="markAllPresent">Mark all present</button>
+      </div>
+      <table class="ledger" id="markTable">
+        <thead><tr><th style="width:30px">#</th><th>Worker</th><th>Zone / Shift</th><th>Status</th></tr></thead>
+        <tbody id="markBody"></tbody>
+      </table>
+      <div class="empty" id="markEmpty" style="display:none"><h3>No workers to mark</h3><p>Add workers to the registry first.</p><button class="btn primary" data-goto="workers">Go to Workers</button></div>
+    </section>
+
+    <!-- WORKERS -->
+    <section class="view" id="view-workers">
+      <div class="page-head">
+        <div><h2>Workers</h2><div class="sub" id="workerCountLabel">Registry of sanitation staff</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn supervisor-only" id="csvTemplateBtn">Download CSV template</button>
+          <button class="btn supervisor-only" id="csvImportBtn">Import CSV</button>
+          <input type="file" id="csvFileInput" accept=".csv" style="display:none">
+          <button class="btn primary supervisor-only" id="addWorkerBtn">+ Add worker</button>
+        </div>
+      </div>
+      <div class="sub" id="csvImportStatus" style="margin:-10px 0 16px;display:none;"></div>
+      <table class="ledger" id="workersTable">
+        <thead><tr><th style="width:30px">#</th><th>Name</th><th>Employee ID</th><th>Zone</th><th>Shift</th><th>Phone</th><th>Daily wage</th><th>Status</th><th></th></tr></thead>
+        <tbody id="workersBody"></tbody>
+      </table>
+      <div class="empty" id="workersEmpty" style="display:none"><h3>No workers yet</h3><p>Add your first sanitation worker to begin the registry, or import a CSV.</p><button class="btn primary supervisor-only" id="addWorkerBtn2">+ Add worker</button></div>
+    </section>
+
+    <!-- WORKER PROFILE -->
+    <section class="view" id="view-profile">
+      <button class="back-link" id="profileBack">&larr; Back to Workers</button>
+      <div class="profile-head">
+        <div class="avatar" id="profAvatar">—</div>
+        <div>
+          <h2 id="profName">—</h2>
+          <div class="meta" id="profMeta">—</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn small supervisor-only" id="profEditBtn">Edit worker</button>
+      </div>
+      <div class="profile-grid">
+        <div>
+          <div class="toolbar" style="margin-bottom:10px;">
+            <div class="field"><label for="profMonth">Month</label><input type="date" id="profMonth"></div>
+          </div>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--teal)"></span>Present</span>
+            <span><span class="sw" style="background:var(--brick)"></span>Absent</span>
+            <span><span class="sw" style="background:var(--amber)"></span>Leave</span>
+            <span><span class="sw" style="background:var(--half)"></span>Half day</span>
+            <span><span class="sw" style="background:var(--muted-tint)"></span>Unmarked</span>
+          </div>
+          <div class="cal-grid" id="profCalendar"></div>
+        </div>
+        <div>
+          <div class="info-card">
+            <div class="row"><span>Employee ID</span><span id="profEmpId">—</span></div>
+            <div class="row"><span>Zone</span><span id="profZone">—</span></div>
+            <div class="row"><span>Shift</span><span id="profShift">—</span></div>
+            <div class="row"><span>Phone</span><span id="profPhone">—</span></div>
+            <div class="row"><span>Daily wage</span><span id="profWage">—</span></div>
+          </div>
+          <div class="info-card">
+            <div class="row"><span>Present days</span><span id="profPresent">0</span></div>
+            <div class="row"><span>Absent days</span><span id="profAbsent">0</span></div>
+            <div class="row"><span>Leave days</span><span id="profLeave">0</span></div>
+            <div class="row"><span>Half days</span><span id="profHalf">0</span></div>
+            <div class="row"><span style="font-weight:700;color:var(--ink)">Wages due</span><span id="profWages" style="font-weight:700">0</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="view" id="view-history">
+      <div class="page-head"><div><h2>Attendance History</h2><div class="sub">Browse past records by worker and date range.</div></div></div>
+      <div class="toolbar">
+        <div class="field"><label for="histWorker">Worker</label><select id="histWorker"><option value="">All workers</option></select></div>
+        <div class="field"><label for="histFrom">From</label><input type="date" id="histFrom"></div>
+        <div class="field"><label for="histTo">To</label><input type="date" id="histTo"></div>
+        <div class="spacer"></div>
+        <button class="btn small" id="histLoad">Load records</button>
+      </div>
+      <table class="ledger" id="histTable">
+        <thead><tr><th style="width:30px">#</th><th>Date</th><th>Worker</th><th>Zone</th><th>Status</th></tr></thead>
+        <tbody id="histBody"></tbody>
+      </table>
+      <div class="empty" id="histEmpty" style="display:none"><h3>No records found</h3><p>Try a different worker or date range.</p></div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" id="view-reports">
+      <div class="page-head">
+        <div><h2>Monthly Report</h2><div class="sub">Attendance summary per worker for the selected month.</div></div>
+        <button class="btn" id="exportCsvBtn">Export CSV</button>
+      </div>
+      <div class="toolbar"><div class="field"><label for="reportMonth">Month</label><input type="date" id="reportMonth"></div><div class="spacer"></div></div>
+      <table class="ledger" id="reportTable">
+        <thead><tr><th style="width:30px">#</th><th>Worker</th><th>Zone</th><th>Present</th><th>Absent</th><th>Leave</th><th>Half day</th><th>Attendance rate</th><th>Daily wage</th><th>Wages due</th></tr></thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot id="reportFoot" style="display:none"><tr><td colspan="9" style="text-align:right;font-weight:700;color:var(--ink-soft);border-bottom:none;">Total wages due</td><td id="reportWageTotal" style="font-weight:700;border-bottom:none;"></td></tr></tfoot>
+      </table>
+      <div class="empty" id="reportEmpty" style="display:none"><h3>No data for this month</h3><p>Mark some attendance first, then come back to view the report.</p></div>
+    </section>
+
+    <!-- PAYROLL -->
+    <section class="view" id="view-payroll">
+      <div class="page-head">
+        <div><h2>Payroll</h2><div class="sub">Track which workers have been paid for the month.</div></div>
+      </div>
+      <div class="toolbar"><div class="field"><label for="payrollMonth">Month</label><input type="date" id="payrollMonth"></div><div class="spacer"></div><button class="btn small" id="payrollMarkAll">Mark all paid</button></div>
+      <table class="ledger" id="payrollTable">
+        <thead><tr><th style="width:30px">#</th><th>Worker</th><th>Zone</th><th>Days worked</th><th>Amount due</th><th>Status</th><th></th></tr></thead>
+        <tbody id="payrollBody"></tbody>
+      </table>
+      <div class="empty" id="payrollEmpty" style="display:none"><h3>No workers to pay yet</h3><p>Add workers and set their daily wage first.</p></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="page-head"><div><h2>Settings</h2><div class="sub">Organization details and shared defaults for this registry.</div></div></div>
+      <div class="settings-grid">
+        <div class="info-card">
+          <label for="orgName">Organization name</label>
+          <input type="text" id="orgName" placeholder="e.g. Ward 6 Sanitation Department" style="margin-bottom:12px;">
+          <label for="orgDefaultWage">Default daily wage for new workers</label>
+          <input type="text" id="orgDefaultWage" inputmode="decimal" placeholder="e.g. 500" style="margin-bottom:14px;">
+          <button class="btn primary small" id="settingsSaveBtn">Save settings</button>
+        </div>
+        <div class="info-card">
+          <label>Zones</label>
+          <div id="zoneTags" style="margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="newZoneInput" placeholder="Add a zone, e.g. Sector 7">
+            <button class="btn small" id="addZoneBtn">Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Add / edit worker modal -->
+<div class="modal-back" id="workerModalBack">
+  <div class="modal">
+    <h3 id="workerModalTitle">Add worker</h3>
+    <div class="form-grid">
+      <div><label for="wName">Full name</label><input type="text" id="wName" placeholder="e.g. Ramesh Kumar"></div>
+      <div class="form-row2">
+        <div><label for="wEmpId">Employee ID</label><input type="text" id="wEmpId" placeholder="e.g. SW-014"></div>
+        <div><label for="wPhone">Phone</label><input type="tel" id="wPhone" placeholder="Optional"></div>
+      </div>
+      <div class="form-row2">
+        <div><label for="wZone">Zone / Area</label><select id="wZone"></select></div>
+        <div><label for="wShift">Shift</label><select id="wShift"><option value="Morning">Morning</option><option value="Evening">Evening</option><option value="Night">Night</option></select></div>
+      </div>
+      <div><label for="wWage">Daily wage</label><input type="text" id="wWage" inputmode="decimal" placeholder="e.g. 500"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="workerModalCancel">Cancel</button>
+      <button class="btn primary" id="workerModalSave">Save worker</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  let db = null;
+  let workers = [];
+  let todayAttendance = {};
+  let unsubWorkers = null;
+  let unsubToday = null;
+  let editingWorkerId = null;
+  let canWrite = true;
+  let canManage = false;
+  let orgSettings = { name: "Sanitation Registry", defaultWage: 0, zones: [] };
+  let currentProfileWorkerId = null;
+
+  // ---------------- Local data store (per-browser) ----------------
+  // No server is involved: every account, worker record and attendance
+  // mark lives in this browser's localStorage. Data does not sync
+  // between devices or browsers.
+  const LocalDB = (function(){
+    const KEY = 'sr_data_v1';
+    function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+    let state = load();
+    function persist(){ localStorage.setItem(KEY, JSON.stringify(state)); window.dispatchEvent(new CustomEvent('srdb:change')); }
+    function uid(){ return 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2,9); }
+    function matches(doc, filters){
+      return filters.every(f=>{
+        const v = doc[f.field];
+        switch(f.op){
+          case '==': return v === f.value;
+          case '>=': return v >= f.value;
+          case '<=': return v <= f.value;
+          case '>': return v > f.value;
+          case '<': return v < f.value;
+          default: return true;
+        }
+      });
+    }
+    function query(collName, filters, order, lim){
+      const api = {
+        where(field, op, value){ return query(collName, [...filters, {field,op,value}], order, lim); },
+        orderBy(field, dir){ return query(collName, filters, {field, dir: dir||'asc'}, lim); },
+        limit(n){ return query(collName, filters, order, n); },
+        async get(){
+          const coll = state[collName] || {};
+          let docs = Object.keys(coll).map(id=>({ id, ...coll[id] }));
+          docs = docs.filter(d=>matches(d, filters));
+          if (order) docs.sort((a,b)=>{
+            const av=a[order.field], bv=b[order.field];
+            const c = av<bv?-1:(av>bv?1:0);
+            return order.dir==='desc' ? -c : c;
+          });
+          if (lim) docs = docs.slice(0, lim);
+          return { docs: docs.map(d=>{ const {id,...rest}=d; return { id, data: ()=>({...rest}) }; }) };
+        },
+        onSnapshot(cb, errCb){
+          let stopped = false;
+          const run = async ()=>{ if (stopped) return; try { cb(await api.get()); } catch(e){ if (errCb) errCb(e); } };
+          run();
+          const h = ()=>run();
+          window.addEventListener('srdb:change', h);
+          return ()=>{ stopped = true; window.removeEventListener('srdb:change', h); };
+        }
+      };
+      return api;
+    }
+    return {
+      collection(name){
+        const q = query(name, [], null, null);
+        q.add = async (data)=>{ state[name] = state[name]||{}; const id = uid(); state[name][id] = {...data}; persist(); return { id }; };
+        return q;
+      },
+      doc(path){
+        const i = path.indexOf('/');
+        const collName = path.slice(0,i), id = path.slice(i+1);
+        const api = {
+          async get(){ const coll = state[collName]||{}; const exists = Object.prototype.hasOwnProperty.call(coll,id); return { exists, data: ()=>({...(coll[id]||{})}) }; },
+          async set(data){ state[collName] = state[collName]||{}; state[collName][id] = {...data}; persist(); },
+          async update(data){ state[collName] = state[collName]||{}; state[collName][id] = { ...(state[collName][id]||{}), ...data }; persist(); },
+          async delete(){ if (state[collName]) delete state[collName][id]; persist(); },
+          onSnapshot(cb, errCb){
+            let stopped = false;
+            const run = async ()=>{ if (stopped) return; try { cb(await api.get()); } catch(e){ if (errCb) errCb(e); } };
+            run();
+            const h = ()=>run();
+            window.addEventListener('srdb:change', h);
+            return ()=>{ stopped = true; window.removeEventListener('srdb:change', h); };
+          }
+        };
+        return api;
+      }
+    };
+  })();
+
+  // ---------------- Accounts & authentication ----------------
+  const USERS_KEY = 'sr_users_v1';
+  const SESSION_KEY = 'sr_session_v1';
+  function loadUsers(){ try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; } catch(e){ return []; } }
+  function saveUsers(list){ localStorage.setItem(USERS_KEY, JSON.stringify(list)); }
+  function loadSession(){ try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e){ return null; } }
+  function saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+  async function hashPassword(pw){
+    const enc = new TextEncoder().encode(pw);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  let session = loadSession();
+  let suRole = 'staff';
+
+  function setAuthTab(tab){
+    document.getElementById('authTabLogin').classList.toggle('active', tab==='login');
+    document.getElementById('authTabSignup').classList.toggle('active', tab==='signup');
+    document.getElementById('loginForm').style.display = tab==='login' ? '' : 'none';
+    document.getElementById('signupForm').style.display = tab==='signup' ? '' : 'none';
+    document.getElementById('authNote').innerHTML = tab==='login'
+      ? 'Don\'t have an account? <a id="toSignupLink">Create one</a>'
+      : 'Already have an account? <a id="toLoginLink">Log in</a>';
+    const link = document.getElementById(tab==='login' ? 'toSignupLink' : 'toLoginLink');
+    if (link) link.addEventListener('click', (e)=>{ e.preventDefault(); setAuthTab(tab==='login' ? 'signup' : 'login'); });
+    document.getElementById('liError').style.display = 'none';
+    document.getElementById('suError').style.display = 'none';
+  }
+  document.getElementById('authTabLogin').addEventListener('click', ()=> setAuthTab('login'));
+  document.getElementById('authTabSignup').addEventListener('click', ()=> setAuthTab('signup'));
+  document.getElementById('toSignupLink').addEventListener('click', (e)=>{ e.preventDefault(); setAuthTab('signup'); });
+
+  document.querySelectorAll('.role-opt').forEach(el=> el.addEventListener('click', ()=>{
+    suRole = el.dataset.role;
+    document.querySelectorAll('.role-opt').forEach(o=> o.classList.toggle('active', o===el));
+  }));
+
+  document.getElementById('signupForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const errEl = document.getElementById('suError'); errEl.style.display = 'none';
+    const name = document.getElementById('suName').value.trim();
+    const email = document.getElementById('suEmail').value.trim().toLowerCase();
+    const pw = document.getElementById('suPassword').value;
+    const confirm = document.getElementById('suConfirm').value;
+    function fail(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+    if (!name || !email || !pw) return fail('Please fill in all fields.');
+    if (!/^\S+@\S+\.\S+$/.test(email)) return fail('Enter a valid email address.');
+    if (pw.length < 6) return fail('Password must be at least 6 characters.');
+    if (pw !== confirm) return fail('Passwords do not match.');
+    const users = loadUsers();
+    if (users.some(u=>u.email===email)) return fail('An account with this email already exists.');
+    const passwordHash = await hashPassword(pw);
+    const user = { id: 'u_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8), name, email, passwordHash, role: suRole, createdAt: Date.now() };
+    users.push(user); saveUsers(users);
+    session = { userId: user.id, name: user.name, role: user.role };
+    saveSession(session);
+    enterApp();
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const errEl = document.getElementById('liError'); errEl.style.display = 'none';
+    const email = document.getElementById('liEmail').value.trim().toLowerCase();
+    const pw = document.getElementById('liPassword').value;
+    function fail(msg){ errEl.textContent = msg; errEl.style.display = 'block'; }
+    const users = loadUsers();
+    const user = users.find(u=>u.email===email);
+    if (!user) return fail('No account found with that email.');
+    const passwordHash = await hashPassword(pw);
+    if (passwordHash !== user.passwordHash) return fail('Incorrect password.');
+    session = { userId: user.id, name: user.name, role: user.role };
+    saveSession(session);
+    enterApp();
+  });
+
+  let appInitialized = false;
+  function enterApp(){
+    document.getElementById('authRoot').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'flex';
+    document.getElementById('userChipName').textContent = session.name;
+    document.getElementById('userChipRole').textContent = session.role === 'supervisor' ? 'Supervisor' : 'Staff';
+    document.getElementById('userChipAvatar').textContent = initials(session.name);
+    canManage = session.role === 'supervisor';
+    canWrite = true;
+    if (!appInitialized) { appInitialized = true; init(); }
+    else { updateRoleUI(); renderAll(); }
+  }
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{
+    clearSession(); session = null; canManage = false; canWrite = true;
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('authRoot').style.display = 'flex';
+    document.getElementById('loginForm').reset();
+    document.getElementById('signupForm').reset();
+    setAuthTab('login');
+  });
+
+  const STATUS_LABEL = { present: "Present", absent: "Absent", leave: "On leave", half: "Half day" };
+
+  function todayStr(){ const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function fmtDateLabel(dstr){ try { const d = new Date(dstr+"T00:00:00"); return d.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'}); } catch(e){ return dstr; } }
+  function fmtMoney(n){ const num = Number(n)||0; return num.toLocaleString(undefined,{maximumFractionDigits:2}); }
+  function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function initials(name){ return String(name||"?").trim().split(/\s+/).slice(0,2).map(p=>p[0]).join('').toUpperCase(); }
+  function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._h); toast._h = setTimeout(()=> t.classList.remove('show'), 2200); }
+
+  // ---------------- Navigation ----------------
+  document.querySelectorAll('.nav-btn').forEach(btn=> btn.addEventListener('click', ()=> gotoView(btn.dataset.view)));
+  document.querySelectorAll('[data-goto]').forEach(btn=> btn.addEventListener('click', ()=> gotoView(btn.dataset.goto)));
+  function gotoView(name){
+    document.querySelectorAll('.nav-btn').forEach(b=> b.classList.toggle('active', b.dataset.view===name));
+    document.querySelectorAll('.view').forEach(v=> v.classList.toggle('active', v.id === 'view-'+name));
+    if (name === 'history') loadHistory();
+    if (name === 'reports') loadReport();
+    if (name === 'payroll') loadPayroll();
+    if (name === 'home') renderHome();
+  }
+
+  // ---------------- Init ----------------
+  async function init(){
+    db = LocalDB;
+    updateRoleUI();
+
+    const today = todayStr();
+    document.getElementById('markDate').value = today;
+    document.getElementById('histFrom').value = today;
+    document.getElementById('histTo').value = today;
+    document.getElementById('reportMonth').value = today;
+    document.getElementById('payrollMonth').value = today;
+    document.getElementById('profMonth').value = today;
+
+    subscribeSettings();
+    subscribeAnnouncements();
+    subscribeWorkers();
+  }
+
+  function updateRoleUI(){
+    const banner = document.getElementById('staffBanner');
+    if (banner) banner.style.display = canManage ? 'none' : '';
+    document.querySelectorAll('.supervisor-only').forEach(el=>{
+      if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.disabled = !canManage;
+      else el.style.display = canManage ? '' : 'none';
+    });
+    // If a staff account is sitting on a supervisor-only view, send them home.
+    if (!canManage) {
+      const restricted = ['workers','profile','reports','payroll','settings'];
+      const activeView = document.querySelector('.view.active');
+      if (activeView && restricted.includes(activeView.id.replace('view-',''))) gotoView('home');
+    }
+  }
+  function guardManage(){
+    if (!canManage) { toast("Supervisor access required for this action"); return false; }
+    if (!db) { toast("Not connected"); return false; }
+    return true;
+  }
+
+  // ---------------- Settings / org / zones ----------------
+  function subscribeSettings(){
+    if (!db) return;
+    db.doc("settings/org").onSnapshot(snap=>{
+      if (snap.exists) {
+        orgSettings = { name: snap.data().name || "Sanitation Registry", defaultWage: snap.data().defaultWage || 0, zones: snap.data().zones || [] };
+      }
+      document.getElementById('brandTitle').textContent = orgSettings.name;
+      document.title = orgSettings.name;
+      document.getElementById('orgName').value = orgSettings.name;
+      document.getElementById('orgDefaultWage').value = orgSettings.defaultWage || '';
+      renderZoneTags();
+      populateWorkerZoneSelect();
+    }, err=> console.error("settings sub error", err));
+  }
+  function renderZoneTags(){
+    const wrap = document.getElementById('zoneTags');
+    if (!orgSettings.zones.length) { wrap.innerHTML = '<span style="font-size:12px;color:var(--ink-soft)">No zones added yet.</span>'; return; }
+    wrap.innerHTML = orgSettings.zones.map(z=>`<span class="zone-tag">${escapeHtml(z)}<button data-zone="${escapeHtml(z)}" title="Remove">&times;</button></span>`).join('');
+    wrap.querySelectorAll('button[data-zone]').forEach(b=> b.addEventListener('click', ()=> removeZone(b.dataset.zone)));
+  }
+  async function removeZone(zone){
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const zones = orgSettings.zones.filter(z=>z!==zone);
+    try { await db.doc("settings/org").set({ ...orgSettings, zones }); toast("Zone removed"); }
+    catch(e){ console.error(e); toast("Could not update"); }
+  }
+  document.getElementById('addZoneBtn').addEventListener('click', async ()=>{
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const input = document.getElementById('newZoneInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (orgSettings.zones.includes(val)) { toast("Zone already exists"); return; }
+    const zones = [...orgSettings.zones, val];
+    try { await db.doc("settings/org").set({ ...orgSettings, zones }); input.value = ''; toast("Zone added"); }
+    catch(e){ console.error(e); toast("Could not add zone"); }
+  });
+  document.getElementById('settingsSaveBtn').addEventListener('click', async ()=>{
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const name = document.getElementById('orgName').value.trim() || "Sanitation Registry";
+    const defaultWage = parseFloat(document.getElementById('orgDefaultWage').value) || 0;
+    try { await db.doc("settings/org").set({ ...orgSettings, name, defaultWage }); toast("Settings saved"); }
+    catch(e){ console.error(e); toast("Could not save settings"); }
+  });
+  function populateWorkerZoneSelect(){
+    const sel = document.getElementById('wZone');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">No zone</option>' + orgSettings.zones.map(z=>`<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`).join('');
+    sel.value = cur;
+  }
+
+  // ---------------- Announcements ----------------
+  let announcements = [];
+  function subscribeAnnouncements(){
+    if (!db) return;
+    db.collection("announcements").orderBy("createdAt","desc").limit(20).onSnapshot(snap=>{
+      announcements = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      renderHome();
+    }, err=> console.error("announcements sub error", err));
+  }
+  document.getElementById('annPostBtn').addEventListener('click', async ()=>{
+    if (!db || !canWrite) { toast("Not connected"); return; }
+    const body = document.getElementById('annBody').value.trim();
+    if (!body) return;
+    try {
+      await db.collection("announcements").add({ body, createdAt: Date.now() });
+      document.getElementById('annBody').value = '';
+      toast("Announcement posted");
+    } catch(e){ console.error(e); toast("Could not post"); }
+  });
+  async function deleteAnnouncement(id){
+    if (!db || !canWrite) return;
+    try { await db.doc("announcements/"+id).delete(); } catch(e){ console.error(e); }
+  }
+
+  function renderHome(){
+    document.getElementById('heroSub').textContent = fmtDateLabel(todayStr()) + " — here's how today looks across the sanitation workforce.";
+    const active = workers.filter(w=>w.active!==false);
+    let present=0;
+    active.forEach(w=>{ const rec = todayAttendance[w.id]; if (rec && rec.status==='present') present++; });
+    document.getElementById('qcWorkers').textContent = active.length;
+    document.getElementById('qcPresent').textContent = present;
+    document.getElementById('qcUnmarked').textContent = active.length - Object.keys(todayAttendance).filter(id=>active.some(w=>w.id===id)).length;
+
+    const list = document.getElementById('homeAnnList');
+    document.getElementById('homeAnnEmpty').style.display = announcements.length ? 'none' : 'block';
+    list.innerHTML = announcements.map(a=>{
+      const d = new Date(a.createdAt);
+      return `<div class="ann-card">
+        <div class="ann-head"><h4>Notice</h4><span class="date">${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span></div>
+        <p>${escapeHtml(a.body)}</p>
+        ${canWrite ? `<button class="del" data-id="${a.id}">Remove</button>` : ''}
+      </div>`;
+    }).join('');
+    list.querySelectorAll('.del').forEach(b=> b.addEventListener('click', ()=> deleteAnnouncement(b.dataset.id)));
+  }
+
+  // ---------------- Workers subscription ----------------
+  function subscribeWorkers(){
+    if (!db) return;
+    unsubWorkers = db.collection("workers").orderBy("name","asc").onSnapshot(snap=>{
+      workers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      populateZoneFilter();
+      populateWorkerFilter();
+      subscribeToday();
+      renderWorkers();
+      renderHome();
+    }, err=> console.error("workers sub error", err));
+  }
+  function subscribeToday(){
+    if (!db) return;
+    if (unsubToday) { unsubToday(); unsubToday = null; }
+    const date = document.getElementById('markDate').value || todayStr();
+    unsubToday = db.collection("attendance").where("date","==",date).onSnapshot(snap=>{
+      todayAttendance = {};
+      snap.docs.forEach(d=>{ todayAttendance[d.data().workerId] = d.data(); });
+      renderDashboardStub();
+      renderMark();
+      renderHome();
+    }, err=> console.error("attendance sub error", err));
+  }
+  document.getElementById('markDate').addEventListener('change', subscribeToday);
+  function renderDashboardStub(){ /* stats now live on Home */ }
+
+  // ---------------- Mark Attendance ----------------
+  function populateZoneFilter(){
+    const sel = document.getElementById('markZone');
+    const cur = sel.value;
+    const zones = [...new Set([...orgSettings.zones, ...workers.map(w=>w.zone).filter(Boolean)])].sort();
+    sel.innerHTML = '<option value="">All zones</option>' + zones.map(z=>`<option value="${escapeHtml(z)}">${escapeHtml(z)}</option>`).join('');
+    sel.value = cur;
+  }
+  document.getElementById('markZone').addEventListener('change', renderMark);
+
+  function renderMark(){
+    const zoneFilter = document.getElementById('markZone').value;
+    const active = workers.filter(w=> w.active !== false && (!zoneFilter || w.zone===zoneFilter));
+    const body = document.getElementById('markBody');
+    document.getElementById('markEmpty').style.display = active.length ? 'none' : 'block';
+    document.getElementById('markTable').style.display = active.length ? 'table' : 'none';
+    body.innerHTML = active.map((w,i)=>`<tr>
+        <td class="row-idx">${i+1}</td>
+        <td><button class="wk-name-btn" data-open="${w.id}">${escapeHtml(w.name)}</button><div class="wk-meta">${escapeHtml(w.employeeId||'')}</div></td>
+        <td>${escapeHtml(w.zone||'—')} &middot; ${escapeHtml(w.shift||'—')}</td>
+        <td><div class="mark-btns" data-worker="${w.id}">
+          <button class="mark-btn" data-s="present">Present</button>
+          <button class="mark-btn" data-s="absent">Absent</button>
+          <button class="mark-btn" data-s="leave">Leave</button>
+          <button class="mark-btn" data-s="half">Half day</button>
+        </div></td>
+      </tr>`).join('');
+    body.querySelectorAll('[data-open]').forEach(b=> b.addEventListener('click', ()=> openProfile(b.dataset.open)));
+    body.querySelectorAll('.mark-btns').forEach(group=>{
+      const wid = group.dataset.worker;
+      const rec = todayAttendance[wid];
+      const status = rec ? rec.status : null;
+      group.querySelectorAll('.mark-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.dataset.s === status);
+        btn.disabled = !canWrite;
+        btn.onclick = () => setAttendance(wid, btn.dataset.s);
+      });
+    });
+  }
+  async function setAttendance(workerId, status){
+    if (!db || !canWrite) { toast(canWrite ? "Not connected" : "You have view-only access"); return; }
+    const date = document.getElementById('markDate').value || todayStr();
+    try { await db.doc("attendance/"+date+"_"+workerId).set({ workerId, date, status, markedAt: Date.now() }); toast("Marked " + STATUS_LABEL[status]); }
+    catch(e){ console.error(e); toast("Could not save — try again"); }
+  }
+  document.getElementById('markAllPresent').addEventListener('click', async ()=>{
+    if (!db || !canWrite) { toast("Not connected"); return; }
+    const zoneFilter = document.getElementById('markZone').value;
+    const active = workers.filter(w=> w.active !== false && (!zoneFilter || w.zone===zoneFilter));
+    const date = document.getElementById('markDate').value || todayStr();
+    for (const w of active) {
+      if (todayAttendance[w.id] && todayAttendance[w.id].status === 'present') continue;
+      try { await db.doc("attendance/"+date+"_"+w.id).set({ workerId: w.id, date, status: 'present', markedAt: Date.now() }); } catch(e){ console.error(e); }
+    }
+    toast("All marked present");
+  });
+
+  // ---------------- Workers table ----------------
+  function renderWorkers(){
+    document.getElementById('workerCountLabel').textContent = workers.length + " worker" + (workers.length===1?"":"s") + " on the registry";
+    const body = document.getElementById('workersBody');
+    document.getElementById('workersEmpty').style.display = workers.length ? 'none' : 'block';
+    document.getElementById('workersTable').style.display = workers.length ? 'table' : 'none';
+    body.innerHTML = workers.map((w,i)=>`<tr>
+      <td class="row-idx">${i+1}</td>
+      <td><button class="wk-name-btn" data-open="${w.id}">${escapeHtml(w.name)}</button></td>
+      <td>${escapeHtml(w.employeeId||'—')}</td>
+      <td>${escapeHtml(w.zone||'—')}</td>
+      <td>${escapeHtml(w.shift||'—')}</td>
+      <td>${escapeHtml(w.phone||'—')}</td>
+      <td>${w.dailyWage ? fmtMoney(w.dailyWage) : '—'}</td>
+      <td><span class="status-pill ${w.active===false ? 'absent':'present'}">${w.active===false ? 'Inactive':'Active'}</span></td>
+      <td>${canManage ? `<button class="btn small ghost" data-edit="${w.id}">Edit</button> <button class="btn small ghost" data-toggle="${w.id}">${w.active===false?'Reactivate':'Deactivate'}</button>` : '<span style="color:var(--ink-soft);font-size:11.5px;">—</span>'}</td>
+    </tr>`).join('');
+    body.querySelectorAll('[data-open]').forEach(b=> b.addEventListener('click', ()=> openProfile(b.dataset.open)));
+    body.querySelectorAll('[data-edit]').forEach(b=> b.addEventListener('click', ()=> openWorkerModal(b.dataset.edit)));
+    body.querySelectorAll('[data-toggle]').forEach(b=> b.addEventListener('click', ()=> toggleWorkerActive(b.dataset.toggle)));
+  }
+  async function toggleWorkerActive(id){
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const w = workers.find(x=>x.id===id); if (!w) return;
+    try { await db.doc("workers/"+id).update({ active: w.active===false ? true : false }); toast(w.active===false ? "Worker reactivated" : "Worker deactivated"); }
+    catch(e){ console.error(e); toast("Could not update"); }
+  }
+
+  // ---------------- Worker modal ----------------
+  const modalBack = document.getElementById('workerModalBack');
+  function openWorkerModal(id){
+    editingWorkerId = id || null;
+    populateWorkerZoneSelect();
+    document.getElementById('workerModalTitle').textContent = id ? 'Edit worker' : 'Add worker';
+    const w = id ? workers.find(x=>x.id===id) : null;
+    document.getElementById('wName').value = w ? w.name||'' : '';
+    document.getElementById('wEmpId').value = w ? w.employeeId||'' : '';
+    document.getElementById('wPhone').value = w ? w.phone||'' : '';
+    document.getElementById('wZone').value = w ? w.zone||'' : '';
+    document.getElementById('wShift').value = w ? w.shift||'Morning' : 'Morning';
+    document.getElementById('wWage').value = w && w.dailyWage ? w.dailyWage : (w ? '' : (orgSettings.defaultWage || ''));
+    modalBack.classList.add('open');
+    setTimeout(()=> document.getElementById('wName').focus(), 50);
+  }
+  function closeWorkerModal(){ modalBack.classList.remove('open'); editingWorkerId = null; }
+  document.getElementById('addWorkerBtn').addEventListener('click', ()=> openWorkerModal(null));
+  document.getElementById('addWorkerBtn2').addEventListener('click', ()=> openWorkerModal(null));
+  document.getElementById('workerModalCancel').addEventListener('click', closeWorkerModal);
+  modalBack.addEventListener('click', e=> { if (e.target===modalBack) closeWorkerModal(); });
+  document.getElementById('profEditBtn').addEventListener('click', ()=> { if (currentProfileWorkerId) openWorkerModal(currentProfileWorkerId); });
+
+  document.getElementById('workerModalSave').addEventListener('click', async ()=>{
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const name = document.getElementById('wName').value.trim();
+    if (!name) { toast("Enter a name"); return; }
+    const wageRaw = document.getElementById('wWage').value.trim();
+    const payload = {
+      name, employeeId: document.getElementById('wEmpId').value.trim(), phone: document.getElementById('wPhone').value.trim(),
+      zone: document.getElementById('wZone').value.trim(), shift: document.getElementById('wShift').value,
+      dailyWage: wageRaw ? Math.max(0, parseFloat(wageRaw)) || 0 : 0, active: true
+    };
+    try {
+      if (editingWorkerId) { await db.doc("workers/"+editingWorkerId).update(payload); toast("Worker updated"); }
+      else { await db.collection("workers").add({ ...payload, createdAt: Date.now() }); toast("Worker added"); }
+      closeWorkerModal();
+    } catch(e){ console.error(e); toast("Could not save worker"); }
+  });
+
+  // ---------------- CSV import ----------------
+  async function downloadCsvFile(filename, csv){
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  }
+  document.getElementById('csvTemplateBtn').addEventListener('click', ()=>{
+    const csv = [["name","employeeId","zone","shift","phone","dailyWage"],["Ramesh Kumar","SW-014","Sector 4","Morning","9876500000","500"],["Sunita Devi","SW-015","Sector 2","Evening","9876500001","500"]]
+      .map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+    downloadCsvFile("workers-template.csv", csv);
+  });
+  function parseCsv(text){
+    const rows = []; let row = [], field = '', inQuotes = false;
+    for (let i=0; i<text.length; i++){
+      const c = text[i];
+      if (inQuotes){ if (c === '"'){ if (text[i+1] === '"'){ field += '"'; i++; } else inQuotes = false; } else field += c; }
+      else { if (c === '"') inQuotes = true; else if (c === ',') { row.push(field); field=''; }
+        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i+1] === '\n') i++; row.push(field); field=''; if (row.length>1 || row[0]!=='') rows.push(row); row=[]; }
+        else field += c; }
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+  document.getElementById('csvImportBtn').addEventListener('click', ()=>{
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    document.getElementById('csvFileInput').click();
+  });
+  document.getElementById('csvFileInput').addEventListener('change', async (e)=>{
+    const file = e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    const statusEl = document.getElementById('csvImportStatus');
+    statusEl.style.display = 'block'; statusEl.textContent = 'Reading file…';
+    try {
+      const text = await file.text();
+      const rows = parseCsv(text).filter(r => r.some(c => c && c.trim() !== ''));
+      if (!rows.length) { statusEl.textContent = 'The file looks empty.'; return; }
+      const header = rows[0].map(h => h.trim().toLowerCase());
+      const idx = { name: header.indexOf('name'), employeeId: header.findIndex(h=>h==='employeeid'||h==='employee id'||h==='id'),
+        zone: header.indexOf('zone'), shift: header.indexOf('shift'), phone: header.indexOf('phone'),
+        dailyWage: header.findIndex(h=>h==='dailywage'||h==='daily wage'||h==='wage') };
+      if (idx.name === -1) { statusEl.textContent = 'CSV needs a "name" column. Use the template for the right format.'; return; }
+      const dataRows = rows.slice(1);
+      let added = 0, skipped = 0;
+      const newZones = new Set(orgSettings.zones);
+      for (const r of dataRows) {
+        const name = (r[idx.name]||'').trim();
+        if (!name) { skipped++; continue; }
+        const wageStr = idx.dailyWage>-1 ? (r[idx.dailyWage]||'').trim() : '';
+        const zone = idx.zone>-1 ? (r[idx.zone]||'').trim() : '';
+        if (zone) newZones.add(zone);
+        const payload = { name, employeeId: idx.employeeId>-1 ? (r[idx.employeeId]||'').trim() : '', zone,
+          shift: idx.shift>-1 ? (r[idx.shift]||'').trim() || 'Morning' : 'Morning', phone: idx.phone>-1 ? (r[idx.phone]||'').trim() : '',
+          dailyWage: wageStr ? (Math.max(0, parseFloat(wageStr)) || 0) : (orgSettings.defaultWage||0), active: true, createdAt: Date.now() };
+        try { await db.collection("workers").add(payload); added++; } catch(err){ console.error(err); skipped++; }
+      }
+      if (newZones.size !== orgSettings.zones.length) {
+        try { await db.doc("settings/org").set({ ...orgSettings, zones: [...newZones] }); } catch(e){}
+      }
+      statusEl.textContent = `Imported ${added} worker${added===1?'':'s'}` + (skipped ? `, skipped ${skipped} row${skipped===1?'':'s'}.` : '.');
+      toast(`Imported ${added} worker${added===1?'':'s'} from CSV`);
+    } catch(err){ console.error(err); statusEl.textContent = 'Could not read that file — make sure it is a valid CSV.'; }
+  });
+
+  // ---------------- Worker profile ----------------
+  function openProfile(id){
+    currentProfileWorkerId = id;
+    gotoView('profile');
+    document.querySelectorAll('.nav-btn').forEach(b=> b.classList.remove('active'));
+    renderProfile();
+  }
+  document.getElementById('profileBack').addEventListener('click', ()=> gotoView('workers'));
+  document.getElementById('profMonth').addEventListener('change', renderProfile);
+
+  async function renderProfile(){
+    const w = workers.find(x=>x.id===currentProfileWorkerId);
+    if (!w) return;
+    document.getElementById('profAvatar').textContent = initials(w.name);
+    document.getElementById('profName').textContent = w.name;
+    document.getElementById('profMeta').textContent = (w.zone||'No zone') + ' · ' + (w.shift||'—') + (w.active===false ? ' · Inactive' : '');
+    document.getElementById('profEmpId').textContent = w.employeeId || '—';
+    document.getElementById('profZone').textContent = w.zone || '—';
+    document.getElementById('profShift').textContent = w.shift || '—';
+    document.getElementById('profPhone').textContent = w.phone || '—';
+    document.getElementById('profWage').textContent = w.dailyWage ? fmtMoney(w.dailyWage) : '—';
+
+    if (!db) return;
+    const monthInput = document.getElementById('profMonth').value || todayStr();
+    const d = new Date(monthInput + "T00:00:00");
+    const y = d.getFullYear(), m = d.getMonth();
+    const first = y+"-"+String(m+1).padStart(2,"0")+"-01";
+    const lastDay = new Date(y, m+1, 0).getDate();
+    const last = y+"-"+String(m+1).padStart(2,"0")+"-"+String(lastDay).padStart(2,"0");
+    let recs = [];
+    try {
+      const snap = await db.collection("attendance").where("workerId","==",w.id).where("date",">=",first).where("date","<=",last).get();
+      recs = snap.docs.map(x=>x.data());
+    } catch(e){ console.error(e); }
+    const byDate = {}; recs.forEach(r=> byDate[r.date] = r.status);
+    const present = recs.filter(r=>r.status==='present').length;
+    const absent = recs.filter(r=>r.status==='absent').length;
+    const leave = recs.filter(r=>r.status==='leave').length;
+    const half = recs.filter(r=>r.status==='half').length;
+    document.getElementById('profPresent').textContent = present;
+    document.getElementById('profAbsent').textContent = absent;
+    document.getElementById('profLeave').textContent = leave;
+    document.getElementById('profHalf').textContent = half;
+    const wage = Number(w.dailyWage)||0;
+    document.getElementById('profWages').textContent = fmtMoney(present*wage + half*wage*0.5);
+
+    const cal = document.getElementById('profCalendar');
+    const firstDow = new Date(y, m, 1).getDay();
+    let html = '';
+    for (let i=0;i<firstDow;i++) html += '<div class="cal-cell blank"></div>';
+    for (let day=1; day<=lastDay; day++){
+      const dstr = y+"-"+String(m+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+      const status = byDate[dstr];
+      html += `<div class="cal-cell ${status||''}" title="${dstr}${status? ' — '+STATUS_LABEL[status]:''}">${day}</div>`;
+    }
+    cal.innerHTML = html;
+  }
+
+  // ---------------- History ----------------
+  function populateWorkerFilter(){
+    const sel = document.getElementById('histWorker');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All workers</option>' + workers.map(w=>`<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+    sel.value = cur;
+  }
+  async function loadHistory(){
+    if (!db) return;
+    const body = document.getElementById('histBody'); body.innerHTML = '';
+    const from = document.getElementById('histFrom').value, to = document.getElementById('histTo').value, workerId = document.getElementById('histWorker').value;
+    if (!from || !to) return;
+    try {
+      let q = db.collection("attendance").where("date",">=",from).where("date","<=",to);
+      if (workerId) q = q.where("workerId","==",workerId);
+      const snap = await q.orderBy("date","desc").limit(500).get();
+      const recs = snap.docs.map(d=>d.data());
+      recs.sort((a,b)=> b.date.localeCompare(a.date));
+      document.getElementById('histEmpty').style.display = recs.length ? 'none' : 'block';
+      document.getElementById('histTable').style.display = recs.length ? 'table' : 'none';
+      body.innerHTML = recs.map((r,i)=>{
+        const w = workers.find(x=>x.id===r.workerId);
+        return `<tr><td class="row-idx">${i+1}</td><td>${escapeHtml(r.date)}</td><td>${escapeHtml(w? w.name : 'Unknown worker')}</td><td>${escapeHtml(w? (w.zone||'—') : '—')}</td><td><span class="status-pill ${r.status}">${STATUS_LABEL[r.status]||r.status}</span></td></tr>`;
+      }).join('');
+    } catch(e){ console.error(e); toast("Could not load history"); }
+  }
+  document.getElementById('histLoad').addEventListener('click', loadHistory);
+
+  // ---------------- Reports ----------------
+  function monthRange(input){
+    const d = new Date((input||todayStr()) + "T00:00:00");
+    const y = d.getFullYear(), m = d.getMonth();
+    const first = y+"-"+String(m+1).padStart(2,"0")+"-01";
+    const lastDay = new Date(y, m+1, 0).getDate();
+    const last = y+"-"+String(m+1).padStart(2,"0")+"-"+String(lastDay).padStart(2,"0");
+    return { first, last, y, m, lastDay };
+  }
+  async function loadReport(){
+    if (!db) return;
+    const { first, last } = monthRange(document.getElementById('reportMonth').value);
+    const body = document.getElementById('reportBody'); body.innerHTML = '';
+    try {
+      const snap = await db.collection("attendance").where("date",">=",first).where("date","<=",last).limit(1000).get();
+      const recs = snap.docs.map(x=>x.data());
+      const active = workers.filter(w=>w.active!==false);
+      document.getElementById('reportEmpty').style.display = (active.length===0) ? 'block' : 'none';
+      document.getElementById('reportTable').style.display = (active.length===0) ? 'none' : 'table';
+      let grandTotal = 0;
+      body.innerHTML = active.map((w,i)=>{
+        const wr = recs.filter(r=>r.workerId===w.id);
+        const present = wr.filter(r=>r.status==='present').length, absent = wr.filter(r=>r.status==='absent').length;
+        const leave = wr.filter(r=>r.status==='leave').length, half = wr.filter(r=>r.status==='half').length;
+        const marked = present+absent+leave+half;
+        const rate = marked ? Math.round(((present + half*0.5) / marked) * 100) : 0;
+        const wage = Number(w.dailyWage)||0;
+        const wagesDue = present*wage + half*wage*0.5;
+        grandTotal += wagesDue;
+        return `<tr><td class="row-idx">${i+1}</td><td class="wk-name-btn" style="cursor:default;color:var(--ink);font-weight:600;">${escapeHtml(w.name)}</td><td>${escapeHtml(w.zone||'—')}</td><td>${present}</td><td>${absent}</td><td>${leave}</td><td>${half}</td>
+          <td><div style="display:flex;align-items:center;gap:8px;"><div class="summary-bar"><span style="width:${rate}%;background:var(--teal)"></span></div><span style="font-size:11.5px;color:var(--ink-soft)">${rate}%</span></div></td>
+          <td>${wage ? fmtMoney(wage) : '—'}</td><td style="font-weight:600">${wage ? fmtMoney(wagesDue) : '—'}</td></tr>`;
+      }).join('');
+      const foot = document.getElementById('reportFoot');
+      if (active.length) { foot.style.display=''; document.getElementById('reportWageTotal').textContent = fmtMoney(grandTotal); }
+      else foot.style.display = 'none';
+    } catch(e){ console.error(e); toast("Could not load report"); }
+  }
+  document.getElementById('reportMonth').addEventListener('change', loadReport);
+  document.getElementById('exportCsvBtn').addEventListener('click', async ()=>{
+    const rows = [["Worker","Employee ID","Zone","Present","Absent","Leave","Half day","Attendance rate","Daily wage","Wages due"]];
+    document.querySelectorAll('#reportBody tr').forEach(tr=>{
+      const tds = tr.querySelectorAll('td'); if (tds.length < 10) return;
+      const worker = workers[parseInt(tds[0].textContent,10)-1];
+      rows.push([tds[1].textContent, worker? (worker.employeeId||'') : '', tds[2].textContent, tds[3].textContent, tds[4].textContent, tds[5].textContent, tds[6].textContent, tds[7].textContent.trim().replace(/\s+/g,' '), tds[8].textContent, tds[9].textContent]);
+    });
+    const totalRow = document.getElementById('reportWageTotal');
+    if (totalRow && totalRow.textContent) rows.push(["","","","","","","","","Total", totalRow.textContent]);
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+    const monthVal = document.getElementById('reportMonth').value || todayStr();
+    downloadCsvFile("attendance-report-" + monthVal.slice(0,7) + ".csv", csv);
+  });
+
+  // ---------------- Payroll ----------------
+  async function loadPayroll(){
+    if (!db) return;
+    const monthInput = document.getElementById('payrollMonth').value || todayStr();
+    const monthKey = monthInput.slice(0,7);
+    const { first, last } = monthRange(monthInput);
+    const body = document.getElementById('payrollBody'); body.innerHTML = '';
+    try {
+      const attSnap = await db.collection("attendance").where("date",">=",first).where("date","<=",last).limit(1000).get();
+      const recs = attSnap.docs.map(x=>x.data());
+      const paySnap = await db.collection("payroll").where("month","==",monthKey).get();
+      const payMap = {}; paySnap.docs.forEach(d=> payMap[d.data().workerId] = { id: d.id, ...d.data() });
+      const active = workers.filter(w=>w.active!==false);
+      document.getElementById('payrollEmpty').style.display = active.length ? 'none' : 'block';
+      document.getElementById('payrollTable').style.display = active.length ? 'table' : 'none';
+      body.innerHTML = active.map((w,i)=>{
+        const wr = recs.filter(r=>r.workerId===w.id);
+        const present = wr.filter(r=>r.status==='present').length, half = wr.filter(r=>r.status==='half').length;
+        const daysWorked = present + half*0.5;
+        const wage = Number(w.dailyWage)||0;
+        const amount = present*wage + half*wage*0.5;
+        const pay = payMap[w.id];
+        const paid = pay && pay.paid;
+        return `<tr>
+          <td class="row-idx">${i+1}</td>
+          <td class="wk-name-btn" style="cursor:default;color:var(--ink);font-weight:600;">${escapeHtml(w.name)}</td>
+          <td>${escapeHtml(w.zone||'—')}</td>
+          <td>${daysWorked}</td>
+          <td>${amount ? fmtMoney(amount) : '—'}</td>
+          <td><span class="status-pill ${paid?'paid':'unpaid'}">${paid?'Paid':'Unpaid'}</span></td>
+          <td><button class="btn small ${paid?'ghost':'primary'}" data-pay="${w.id}" data-amount="${amount}">${paid?'Mark unpaid':'Mark paid'}</button></td>
+        </tr>`;
+      }).join('');
+      body.querySelectorAll('[data-pay]').forEach(b=> b.addEventListener('click', ()=> togglePaid(b.dataset.pay, monthKey, parseFloat(b.dataset.amount)||0)));
+    } catch(e){ console.error(e); toast("Could not load payroll"); }
+  }
+  async function togglePaid(workerId, monthKey, amount){
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const docId = monthKey + "_" + workerId;
+    try {
+      const snap = await db.doc("payroll/"+docId).get();
+      const isPaid = snap.exists && snap.data().paid;
+      await db.doc("payroll/"+docId).set({ workerId, month: monthKey, amount, paid: !isPaid, paidAt: !isPaid ? Date.now() : null });
+      toast(!isPaid ? "Marked paid" : "Marked unpaid");
+      loadPayroll();
+    } catch(e){ console.error(e); toast("Could not update payroll"); }
+  }
+  document.getElementById('payrollMonth').addEventListener('change', loadPayroll);
+  document.getElementById('payrollMarkAll').addEventListener('click', async ()=>{
+    if (!db || !canManage) { toast("Supervisor access required"); return; }
+    const monthInput = document.getElementById('payrollMonth').value || todayStr();
+    const monthKey = monthInput.slice(0,7);
+    document.querySelectorAll('#payrollBody [data-pay]').forEach(async b=>{
+      if (b.textContent.trim() === 'Mark paid') {
+        try { await db.doc("payroll/"+monthKey+"_"+b.dataset.pay).set({ workerId: b.dataset.pay, month: monthKey, amount: parseFloat(b.dataset.amount)||0, paid: true, paidAt: Date.now() }); } catch(e){ console.error(e); }
+      }
+    });
+    setTimeout(()=> { loadPayroll(); toast("All marked paid"); }, 400);
+  });
+
+  function renderAll(){ renderMark(); renderWorkers(); renderHome(); }
+
+  // ---------------- Boot ----------------
+  if (session) { setAuthTab('login'); enterApp(); }
+  else { setAuthTab('login'); document.getElementById('authRoot').style.display = 'flex'; }
+})();
+</script>
+</body>
+</html>
